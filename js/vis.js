@@ -10,9 +10,9 @@ function stringToWords(string) {
 }
 
 var concordancePlot = function() {
-  var width = 500;
-  var height = 120;
-  var margin = {top: 20, right: 20, bottom: 20, left: 20};
+  var width = 400;
+  var height = 80;
+  var margin = {top: 20, right: 20, bottom: 50, left: 20};
   var g = null;
   var drop = null;
   var sentence = null;
@@ -35,6 +35,12 @@ var concordancePlot = function() {
         .attr("class", "background")
         .attr("width", width)
         .attr("height", height);
+
+      g.append("text")
+        .attr("class", "sentence")
+        .attr("text-anchor", "start")
+        .attr("y", height + margin.bottom / 3)
+        .attr("x", margin.left / 2);
 
       drop = div.append("div");
 
@@ -103,13 +109,12 @@ var concordancePlot = function() {
       .attr("x2", function(d) { return wordScale(d.i); })
       .attr("y1", 0)
       .attr("y2", height)
-      .attr("stroke", "black")
       .attr("stroke-width", 1)
       .on("mouseover", showSentence);
   }
 
   function updateDetails(allData, selectedWords, searchTerm) {
-    var details = drop.select(".details")
+    var details = drop.select(".details");
     details.text("");
     if (allData.length > 0) {
       if(searchTerm && searchTerm.length > 0) {
@@ -118,12 +123,19 @@ var concordancePlot = function() {
       } else {
         details.text(allData.length + ' words found.');
       }
-
     }
   }
 
   function showSentence(d) {
-    console.log(d);
+    var sentence = data.slice(d.i - 9, d.i + 10).map(function(w) { return w.w; });
+
+    sentence.splice(9, 0, "<tspan class='highlight'>");
+    sentence.splice(11, 0, "</tspan>");
+
+    sentence = sentence.join(" ");
+    console.log(sentence);
+    g.select(".sentence")
+      .html(sentence);
   }
 
   function processData(rawData) {
@@ -133,7 +145,7 @@ var concordancePlot = function() {
 
   function loadText(name, text) {
     processData(text);
-    console.log(name);
+
     drop.select(".info").text(name);
     update(currentWord);
   }
@@ -181,6 +193,8 @@ function plotData(selector, data, plot) {
     .call(plot);
 }
 
+var initialSearch = "hare";
+var filename = "alice_in_wonderland.txt";
 var plots = [];
 
 $(document).ready(function() {
@@ -192,12 +206,15 @@ $(document).ready(function() {
   });
 
   function display(error, data) {
-    plots[0].setText("alice_in_wonderland.txt", data);
+    plots[0].setText(filename, data);
+    plots[0].search(initialSearch);
   }
 
   queue()
-    .defer(d3.text, "data/alice.txt")
+    .defer(d3.text, "data/" + filename)
     .await(display);
+
+  d3.select("#search").attr("value", initialSearch);
 
   d3.select("#search").on('input', function() {
     var word = this.value.toLowerCase();

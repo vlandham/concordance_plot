@@ -6,9 +6,15 @@ body, input, textarea {
 
 #main {
   padding-top:15px;
+  max-width:800px;
+  margin:auto;
 }
 
 .word {
+  stroke: steelblue;
+}
+
+.highlight {
   stroke: steelblue;
 }
 
@@ -33,5 +39,5 @@ body, input, textarea {
 }
 
 .drop .info {
-  padding-top:15px;
+  padding-top:4px;
 }
